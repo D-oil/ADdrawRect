@@ -8,10 +8,10 @@
 
 #import "ADRectViewsManager.h"
 
-@interface ADRectViewsManager ()
+@interface ADRectViewsManager () <ADRectViewDelegate>
 
 @property (nonatomic,strong) NSMutableArray <ADRectView *> *rectViews;
-@property (nonatomic,strong)ADRectView *currentView;
+@property (nonatomic,strong) ADRectView *currentView;
 @end
 
 @implementation ADRectViewsManager
@@ -51,11 +51,25 @@
 - (void)createRectViewWithShape:(ADViewShape)shape
 {
     ADRectView *rect = [[ADRectView alloc]initWithSuperViewBounds:self.bounds shape:shape];
-    rect.fillColor   = [UIColor redColor];
+    rect.fillColor   = [UIColor colorWithRed:(arc4random() % 255)/255.0 green:(arc4random() % 255)/255.0 blue:(arc4random() % 255)/255.0 alpha:0.5];
     rect.strokeColor = [UIColor brownColor];
-    rect.buttonBackgroundImage_defaultStr = @"Controls-SwitchOff-bg-grey";
-    rect.buttonBackgroundImage_highlightedStr = @"Controls-SwitchOff-bg-grey";
+    rect.buttonBackgroundImage_defaultStr = @"btn_thumb";
+    rect.buttonBackgroundImage_highlightedStr = @"btn_thumb";
     rect.lineWidth   = 2;
+    rect.delegate = self;
+    self.currentView = rect;
+    [self addSubview:rect];
+}
+
+- (void)createRectViewWithPoints:(NSArray <ADRectPoint *>*)points
+{
+    ADRectView *rect = [[ADRectView alloc]initWithSuperViewBounds:self.bounds PointArray:points];
+    rect.fillColor   = [UIColor colorWithRed:(arc4random() % 255)/255.0 green:(arc4random() % 255)/255.0 blue:(arc4random() % 255)/255.0 alpha:0.5];
+    rect.strokeColor = [UIColor brownColor];
+    rect.buttonBackgroundImage_defaultStr = @"btn_thumb";
+    rect.buttonBackgroundImage_highlightedStr = @"btn_thumb";
+    rect.lineWidth   = 2;
+    rect.delegate = self;
     self.currentView = rect;
     [self addSubview:rect];
 }
@@ -66,9 +80,13 @@
         if ( touchPoint.x >= rect.rectTopPoint.x && touchPoint.y >= rect.rectTopPoint.y && touchPoint.x <= rect.rectBottomPoint.x && touchPoint.y <= rect.rectBottomPoint .y ) {
             [rect beginEditPath];
             self.currentView = rect;
+            if ([_delegate respondsToSelector:@selector(beginEditWithRectView:)]) {
+                [self.delegate beginEditWithRectView:self.currentView];
+            }
             break;
         } else {
             [rect savePath];
+
             self.currentView = nil;
         }
     }
@@ -86,7 +104,24 @@
 }
 - (NSArray *)saveRectView:(ADRectView *)rect
 {
+    
     return [rect savePath];
+}
+
+
+
+- (void)savePathWithRectView:(id)rect
+{
+    if ([_delegate respondsToSelector:@selector(endEditWithRectView:)]) {
+        [self.delegate endEditWithRectView:rect];
+    }
+}
+
++ (ADRectPoint *)createADRectPointWithPoint:(CGPoint)point
+{
+    ADRectPoint *rectPoint = [[ADRectPoint alloc]init];
+    rectPoint.point = point;
+    return rectPoint;
 }
 
 @end

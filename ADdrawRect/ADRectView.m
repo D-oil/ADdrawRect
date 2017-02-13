@@ -6,15 +6,14 @@
 //
 
 #import "ADRectView.h"
-#import "ADRectPoint.h"
 
-const static CGFloat ADRectBorderLength = 80;
-const static CGFloat ADRectButtonSize   = 20;
+
+const static CGFloat ADRectBorderLength = 100;
+const static CGFloat ADRectButtonSize   = 30;
 
 @interface ADRectView () <ADRectPointButtonDelegate>
 
-@property (nonatomic,strong)NSMutableArray <ADRectPoint *> * allPointArray;
-@property (nonatomic,strong)NSMutableArray <ADRectPointButton *> * allPointButtonArray;
+
 
 @property (nonatomic,strong)ADRectPoint    * currentPoint;
 @property (nonatomic,strong)UIBezierPath   * path;
@@ -79,6 +78,21 @@ const static CGFloat ADRectButtonSize   = 20;
     return self;
 }
 
+- (instancetype)initWithSuperViewBounds:(CGRect)superViewBounds PointArray:(NSArray <ADRectPoint *> *)points
+{
+    self = [super initWithFrame:superViewBounds];
+    
+    if (self) {
+        self.backgroundColor = [UIColor clearColor];
+        self.viewShape = ADViewShape_Rect;
+        self.path  = [[UIBezierPath alloc]init];
+        [self createRectViewWithFrame:superViewBounds pointArray:points];
+        [self setDefaultInfo];
+        
+    }
+    return self;
+}
+
 - (instancetype)initWithFrame:(CGRect)frame
 {
     return nil;
@@ -96,10 +110,11 @@ const static CGFloat ADRectButtonSize   = 20;
     }
 }
 
+
 - (void) setDefaultInfo
 {
     self.fillColor = [UIColor grayColor];
-    self.strokeColor = [UIColor redColor];
+    self.strokeColor = [UIColor colorWithRed:150/255.0 green:150/255.0 blue:150/255.0 alpha:0.5];
     self.buttonBackgroundImage_defaultStr = @"MenuIcon-Capture";
     self.buttonBackgroundImage_highlightedStr = @"MenuIcon-Capture";
     self.lineWidth = 2;
@@ -192,7 +207,11 @@ const static CGFloat ADRectButtonSize   = 20;
     if ([self isTouchSelectViewWithTouchPoint:[touch locationInView:self]]) {
         [self beginEditPath];
     } else {
+        if ([_delegate respondsToSelector:@selector(savePathWithRectView:)]) {
+            [self.delegate savePathWithRectView:self];
+        }
         [self savePath];
+        
     }
     
 }
@@ -277,6 +296,24 @@ const static CGFloat ADRectButtonSize   = 20;
         [self.allPointButtonArray addObject:PointButton];
     }
     [self updateFrame];
+}
+
+- (void)createRectViewWithFrame:(CGRect)frame pointArray:(NSArray *)points
+{
+    self.allPointButtonArray = [NSMutableArray array];
+    for (NSInteger index = 0; index < 4 ; index ++) {
+        ADRectPoint *point = points[index];
+        ADRectPointButton *PointButton = [[ADRectPointButton alloc]initWithFrame:CGRectMake(0, 0, ADRectButtonSize, ADRectButtonSize)];
+        PointButton.delegete = self;
+        PointButton.center = point.point;
+        PointButton.tag = index;
+        [self addSubview:PointButton];
+        [self.allPointButtonArray addObject:PointButton];
+    }
+    self.allPointArray = [points mutableCopy];
+    
+    [self updateFrame];
+
 }
 
 - (void)createTriangleWithFrame:(CGRect)frame

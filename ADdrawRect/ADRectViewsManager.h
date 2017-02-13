@@ -9,14 +9,26 @@
 #import <UIKit/UIKit.h>
 #import "ADRectView.h"
 
+@protocol ADRectViewsManagerDelegate <NSObject>
+
+- (void)beginEditWithRectView:(ADRectView *)rect;
+- (void)endEditWithRectView:(ADRectView *)rect;
+
+@end
+
 @interface ADRectViewsManager : UIView
 
 @property (nonatomic,strong,readonly)ADRectView *currentView;
 
+@property (nonatomic,weak) id <ADRectViewsManagerDelegate> delegate;
+
 - (void)createRectViewWithShape:(ADViewShape)shape;
+- (void)createRectViewWithPoints:(NSArray <ADRectPoint *>*)points;
 
 - (void)editRectView:(ADRectView *)rect;
-- (NSArray *)saveRectView:(ADRectView *)rect;
 - (void)deleteRectView:(ADRectView *)rect;
+- (NSArray *)saveRectView:(ADRectView *)rect;
+
++ (ADRectPoint *)createADRectPointWithPoint:(CGPoint)point;
 
 @end
