@@ -13,29 +13,31 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-
+  
     }
     return self;
 }
 
+
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
     UITouch *touch = [touches.allObjects lastObject];
-    [self setCenter:[touch locationInView:self.superview]];
-    
-    if ([_delegete respondsToSelector:@selector(touchMoveButtonWithTag:WithPoint:)]) {
-        [self.delegete touchMoveButtonWithTag:self.tag WithPoint:self.center];
+
+    if ([_delegete respondsToSelector:@selector(touchMoveButton:WithTag:WithPoint:)]) {
+        [self.delegete touchMoveButton:self WithTag:self.tag WithPoint:[touch locationInView:self.superview]];
     }
+    
 }
 
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
     UITouch *touch = [touches.allObjects lastObject];
-    [self setCenter:[touch locationInView:self.superview]];
-    
-    if ([_delegete respondsToSelector:@selector(touchEndButtonWithTag:WithPoint:)]) {
-        [self.delegete touchEndButtonWithTag:self.tag WithPoint:self.center];
+
+    if ([_delegete respondsToSelector:@selector(touchEndButton:WithTag:WithPoint:)]) {
+        [self.delegete touchEndButton:self WithTag:self.tag WithPoint:[touch locationInView:self.superview]];
     }
+    
+    
 }
 
 @end

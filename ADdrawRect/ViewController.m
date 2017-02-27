@@ -12,11 +12,11 @@
 
 @interface ViewController () <ADRectViewsManagerDelegate>
 
-@property (weak, nonatomic) IBOutlet UIView *drawView;
+@property (weak, nonatomic) IBOutlet ADRectViewsManager *rectViewsManager;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *segmentedControl;
 
 
-@property (nonatomic,strong)ADRectViewsManager *rectViewsManager;
+
 @end
 
 @implementation ViewController
@@ -24,9 +24,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-    self.rectViewsManager = [[ADRectViewsManager alloc] initWithFrame:self.drawView.bounds];
+
     self.rectViewsManager.delegate = self;
-    [self.drawView addSubview:self.rectViewsManager];
+
     
     
 }

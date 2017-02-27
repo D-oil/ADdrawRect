@@ -9,7 +9,7 @@
 
 
 const static CGFloat ADRectBorderLength = 100;
-const static CGFloat ADRectButtonSize   = 30;
+const static CGFloat ADRectButtonSize   = 40;
 
 @interface ADRectView () <ADRectPointButtonDelegate>
 
@@ -22,6 +22,7 @@ const static CGFloat ADRectButtonSize   = 30;
 @property (nonatomic,assign)CGPoint          rectTopPoint;
 @property (nonatomic,assign)CGPoint          rectBottomPoint;
 
+@property (nonatomic,assign)CGPoint          lastMovePoint;
 
 @end
 
@@ -49,7 +50,7 @@ const static CGFloat ADRectButtonSize   = 30;
 - (void) setButtonBackgroundImage_defaultStr:(NSString *)buttonBackgroundImage_defaultStr
 {
     for (ADRectPointButton *pointButton  in self.allPointButtonArray) {
-        [pointButton setBackgroundImage:[UIImage imageNamed:buttonBackgroundImage_defaultStr] forState:UIControlStateNormal];
+        [pointButton setImage:[UIImage imageNamed:buttonBackgroundImage_defaultStr] forState:UIControlStateNormal];
     }
     _buttonBackgroundImage_defaultStr = buttonBackgroundImage_defaultStr;
 }
@@ -57,7 +58,7 @@ const static CGFloat ADRectButtonSize   = 30;
 - (void) setButtonBackgroundImage_highlightedStr:(NSString *)buttonBackgroundImage_highlightedStr
 {
     for (ADRectPointButton *pointButton  in self.allPointButtonArray) {
-        [pointButton setBackgroundImage:[UIImage imageNamed:buttonBackgroundImage_highlightedStr] forState:UIControlStateHighlighted];
+        [pointButton setImage:[UIImage imageNamed:buttonBackgroundImage_highlightedStr] forState:UIControlStateHighlighted];
     }
     _buttonBackgroundImage_highlightedStr = buttonBackgroundImage_highlightedStr;
 }
@@ -73,6 +74,10 @@ const static CGFloat ADRectButtonSize   = 30;
         self.path  = [[UIBezierPath alloc]init];
         [self createAllPointWithFrame:superViewBounds];
         [self setDefaultInfo];
+        
+        UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureRecognizerAction:)];
+        [self addGestureRecognizer:pan];
+        
 
     }
     return self;
@@ -88,6 +93,12 @@ const static CGFloat ADRectButtonSize   = 30;
         self.path  = [[UIBezierPath alloc]init];
         [self createRectViewWithFrame:superViewBounds pointArray:points];
         [self setDefaultInfo];
+        UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureRecognizerAction:)];
+        [pan setMinimumNumberOfTouches:2];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [pan requireGestureRecognizerToFail:pan];
+        });
+        [self addGestureRecognizer:pan];
         
     }
     return self;
@@ -196,7 +207,7 @@ const static CGFloat ADRectButtonSize   = 30;
         self.rectBottomPoint = CGPointMake(bottomPointx, bottomPointy);
     }
     
-//    [self setFrame:CGRectMake(firstPointx, firstPointy  , bottomPointx - firstPointx + ADRectButtonSize  , bottomPointy - firstPointy + ADRectButtonSize )];
+
     
 }
 
@@ -207,11 +218,10 @@ const static CGFloat ADRectButtonSize   = 30;
     if ([self isTouchSelectViewWithTouchPoint:[touch locationInView:self]]) {
         [self beginEditPath];
     } else {
-        if ([_delegate respondsToSelector:@selector(savePathWithRectView:)]) {
-            [self.delegate savePathWithRectView:self];
-        }
-        [self savePath];
-        
+//        if ([_delegate respondsToSelector:@selector(savePathWithRectView:)]) {
+//            [self.delegate savePathWithRectView:self];
+//        }
+//        [self savePath];
     }
     
 }
@@ -226,22 +236,45 @@ const static CGFloat ADRectButtonSize   = 30;
 }
 
 #pragma mark - ADRectPointButtonDelegate
-- (void)touchMoveButtonWithTag:(NSInteger)tag WithPoint:(CGPoint)point
+- (void)touchMoveButton:(ADRectPointButton *)rectPointButton WithTag:(NSInteger)tag WithPoint:(CGPoint)point
 {
-//    NSLog(@"tag = %ld ,Point = %@",tag,NSStringFromCGPoint(point));
+    NSLog(@"tag = %ld ,Point = %@",tag,NSStringFromCGPoint(point));
     ADRectPoint *pointObj = self.allPointArray[tag];
     pointObj.point = point;
-    [self setNeedsDisplay];
-    [self updateFrame];
+    //计算其他三个内角的和计算出正在移动的这个button的内角度数
+    
+    [rectPointButton setCenter:point];
+    //判断四变形内角的每个角是否有大于180度，大于这会变成凹四边形，这不能移动点了
+    if ([self computeAllpointInnerAngleDeterminePointCanMoveWithCurrentButtontag:rectPointButton.tag]) {
+       
+        
+        [self setNeedsDisplay];
+        [self updateFrame];
+    } else {
+        
+    }
+      
+
 
 }
 
--(void)touchEndButtonWithTag:(NSInteger)tag WithPoint:(CGPoint)point
+-(void)touchEndButton:(ADRectPointButton *)rectPointButton WithTag:(NSInteger)tag WithPoint:(CGPoint)point
 {
     ADRectPoint *pointObj = self.allPointArray[tag];
     pointObj.point = point;
-    [self updateFrame];
-    [self setNeedsDisplay];
+    //判断四变形内角的每个角是否有大于180度，大于这会变成凹四边形，这不能移动点了
+    if ([self computeAllpointInnerAngleDeterminePointCanMoveWithCurrentButtontag:rectPointButton.tag]) {
+        
+        
+        [rectPointButton setCenter:point];
+        [self updateFrame];
+        [self setNeedsDisplay];
+    } else {
+     
+    }
+       
+    
+ 
 }
 
 #pragma mark - create shape Point
@@ -303,7 +336,9 @@ const static CGFloat ADRectButtonSize   = 30;
     self.allPointButtonArray = [NSMutableArray array];
     for (NSInteger index = 0; index < 4 ; index ++) {
         ADRectPoint *point = points[index];
+        point.pointId = index;
         ADRectPointButton *PointButton = [[ADRectPointButton alloc]initWithFrame:CGRectMake(0, 0, ADRectButtonSize, ADRectButtonSize)];
+     
         PointButton.delegete = self;
         PointButton.center = point.point;
         PointButton.tag = index;
@@ -321,9 +356,101 @@ const static CGFloat ADRectButtonSize   = 30;
     [self createRectangleWithFrame:frame];
 }
 
-//- (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
-//{
-//    UITouch *touch = [touches.allObjects lastObject];
-//    [self setCenter:[touch locationInView:self.superview]];
-//}
+- (BOOL)computeAllpointInnerAngleDeterminePointCanMoveWithCurrentButtontag:(NSUInteger)tag;
+{
+    double PointAAngle = [self computePointAngelWithLastPoint:self.allPointArray[3] currentPoint:self.allPointArray[0] nextPoint:self.allPointArray[1]];
+    double PointBAngle = [self computePointAngelWithLastPoint:self.allPointArray[0] currentPoint:self.allPointArray[1] nextPoint:self.allPointArray[2]];
+    double PointCAngle = [self computePointAngelWithLastPoint:self.allPointArray[1] currentPoint:self.allPointArray[2] nextPoint:self.allPointArray[3]];
+    double PointDAngle = [self computePointAngelWithLastPoint:self.allPointArray[2] currentPoint:self.allPointArray[3] nextPoint:self.allPointArray[0]];
+    
+    NSMutableArray *pointAngleArray =[ @[[NSNumber numberWithDouble:PointAAngle],
+                                         [NSNumber numberWithDouble:PointBAngle],
+                                         [NSNumber numberWithDouble:PointCAngle],
+                                         [NSNumber numberWithDouble:PointDAngle]] mutableCopy];
+    
+    [pointAngleArray removeObjectAtIndex:tag];
+    double movePointInnerAngel = 2 *M_PI;
+    for (NSNumber *point in pointAngleArray) {
+       movePointInnerAngel = movePointInnerAngel - [point doubleValue];
+    }
+    
+    if (movePointInnerAngel >= M_PI) {
+        return NO;
+    }
+
+    return YES;
+}
+//输入四边形对应的三个点，计算中间点的内角角度
+- (double)computePointAngelWithLastPoint:(ADRectPoint *)lastPoint currentPoint:(ADRectPoint *)currentPoint nextPoint:(ADRectPoint *) nextPoint
+{
+    //先根据坐标计算角所对应两条邻边的长度
+    //用绝对值计算两边的长度
+    double AE = fabs((currentPoint.point.x - lastPoint.point.x));
+    double DE = fabs((currentPoint.point.y - lastPoint.point.y));
+    //已知直角三角形两直角边，计算斜边长度
+    double AD = hypot(AE, DE);
+    
+    //用绝对值计算两边的长度
+    double AF = fabs((currentPoint.point.x - nextPoint.point.x));
+    double BF = fabs((currentPoint.point.y - nextPoint.point.y));
+    //已知直角三角形两直角边，计算斜边长度
+    double AB = hypot(AF, BF);
+    
+    //计算BD的长度（BD是B点与D点的连线）
+    double DG = fabs((lastPoint.point.x - nextPoint.point.x));
+    double BG = fabs((lastPoint.point.y - nextPoint.point.y));
+    //已知直角三角形两直角边，计算斜边长度
+    double BD = hypot(DG, BG);
+    
+    //这里利用三角函数 cosA = （b平方 + c平方 -a平方） ／2bc
+    //AD是 b AB是 c BD是 a
+    double cosA =( AD*AD + AB*AB - BD*BD  ) / (2 * AD * AB);
+    
+    if (fabs(acos(cosA) - M_PI ) < 0.03) {
+        return -acos(cosA);
+    }
+    
+    //反三角函数得到A的弧度值
+//    NSLog(@"----%lf----",acos(cosA));
+    
+    return acos(cosA);
+}
+
+- (void)panGestureRecognizerAction:(UIPanGestureRecognizer *)pan
+{
+    NSLog(@"%@",NSStringFromCGPoint([pan translationInView:self.superview]));
+    CGPoint movePoint = [pan translationInView:self.superview];
+    
+    CGFloat moveX = (movePoint.x - self.lastMovePoint.x ) /2.5;
+    CGFloat moveY = (movePoint.y - self.lastMovePoint.y ) /2.5;
+    
+    //判断边界
+    UIView *superview = self.superview;
+    for (ADRectPoint *point in self.allPointArray) {
+        if ((point.point.x <= 0 && moveX >= 0) ||
+            (point.point.y <= 0 && moveY >= 0) ||
+            (point.point.x >= superview.frame.size.width && moveX <= 0) ||
+            (point.point.y >= superview.frame.size.height && moveY <= 0)) {
+            
+        }
+        else if (point.point.x <= 0 || point.point.y <= 0 || point.point.x >= superview.frame.size.width || point.point.y >= superview.frame.size.height) {
+            return;
+        }
+    }
+
+    //移动点
+    for (ADRectPoint *point in self.allPointArray) {
+        point.point = CGPointMake(point.point.x + moveX, point.point.y + moveY);
+    }
+    //移动button
+    for (ADRectPointButton *pointButton in self.allPointButtonArray) {
+        pointButton.center = CGPointMake(pointButton.center.x + moveX, pointButton.center.y + moveY);
+    }
+    [self setNeedsDisplay];
+    self.lastMovePoint = movePoint;
+    if (pan.state == UIGestureRecognizerStateEnded) {
+        self.lastMovePoint = CGPointZero;
+    }
+}
+
 @end

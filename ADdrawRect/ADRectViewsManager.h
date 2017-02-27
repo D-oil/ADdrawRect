@@ -31,4 +31,5 @@
 
 + (ADRectPoint *)createADRectPointWithPoint:(CGPoint)point;
 
+- (NSInteger)getMinID;
 @end

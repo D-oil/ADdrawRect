@@ -10,18 +10,40 @@
 
 @interface ADRectViewsManager () <ADRectViewDelegate>
 
+@property (nonatomic,strong) NSArray *colorArray;
+@property (nonatomic,strong) NSArray *buttonIcons;
 @property (nonatomic,strong) NSMutableArray <ADRectView *> *rectViews;
 @property (nonatomic,strong) ADRectView *currentView;
 @end
 
 @implementation ADRectViewsManager
 
+- (NSArray *)colorArray {
+    if (_colorArray == nil) {
+        _colorArray = @[[UIColor colorWithRed:163/255.0 green:106/255.0 blue:248/255.0 alpha:0.7],
+                        [UIColor colorWithRed:42/255.0 green:218/255.0 blue:157/255.0 alpha:0.7],
+                        [UIColor colorWithRed:40/255.0 green:117/255.0 blue:238/255.0 alpha:0.7]];
+    }
+    return _colorArray;
+}
+
+- (NSArray *)buttonIcons {
+    if (_buttonIcons == nil) {
+        _buttonIcons = @[@"icon_point_p",@"icon_point_b",@"icon_point_g"];
+    }
+    return _buttonIcons;
+}
 - (NSMutableArray *)rectViews
 {
     if (_rectViews == nil) {
         _rectViews = [NSMutableArray array];
     }
     return _rectViews;
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -51,10 +73,10 @@
 - (void)createRectViewWithShape:(ADViewShape)shape
 {
     ADRectView *rect = [[ADRectView alloc]initWithSuperViewBounds:self.bounds shape:shape];
-    rect.fillColor   = [UIColor colorWithRed:(arc4random() % 255)/255.0 green:(arc4random() % 255)/255.0 blue:(arc4random() % 255)/255.0 alpha:0.5];
-    rect.strokeColor = [UIColor brownColor];
-    rect.buttonBackgroundImage_defaultStr = @"btn_thumb";
-    rect.buttonBackgroundImage_highlightedStr = @"btn_thumb";
+    rect.ID = [NSString stringWithFormat:@"%ld",[self getMinID]];
+    rect.fillColor = [self.colorArray objectAtIndex:[self getMinID] -1];
+    rect.buttonBackgroundImage_defaultStr = [self.buttonIcons objectAtIndex:[self getMinID] -1];
+    rect.buttonBackgroundImage_highlightedStr = [self.buttonIcons objectAtIndex:[self getMinID] -1];
     rect.lineWidth   = 2;
     rect.delegate = self;
     self.currentView = rect;
@@ -64,10 +86,11 @@
 - (void)createRectViewWithPoints:(NSArray <ADRectPoint *>*)points
 {
     ADRectView *rect = [[ADRectView alloc]initWithSuperViewBounds:self.bounds PointArray:points];
-    rect.fillColor   = [UIColor colorWithRed:(arc4random() % 255)/255.0 green:(arc4random() % 255)/255.0 blue:(arc4random() % 255)/255.0 alpha:0.5];
-    rect.strokeColor = [UIColor brownColor];
-    rect.buttonBackgroundImage_defaultStr = @"btn_thumb";
-    rect.buttonBackgroundImage_highlightedStr = @"btn_thumb";
+    //为rect分配一个最低id
+    rect.ID = [NSString stringWithFormat:@"%ld",[self getMinID]];
+    rect.fillColor = [self.colorArray objectAtIndex:[self getMinID] -1];
+    rect.buttonBackgroundImage_defaultStr = [self.buttonIcons objectAtIndex:[self getMinID] -1];
+    rect.buttonBackgroundImage_highlightedStr = [self.buttonIcons objectAtIndex:[self getMinID] -1];
     rect.lineWidth   = 2;
     rect.delegate = self;
     self.currentView = rect;
@@ -122,6 +145,23 @@
     ADRectPoint *rectPoint = [[ADRectPoint alloc]init];
     rectPoint.point = point;
     return rectPoint;
+}
+
+- (NSInteger)getMinID
+{
+    NSMutableArray *haveIDArray = [NSMutableArray array];
+    for (ADRectView *rect in self.rectViews) {
+        [haveIDArray addObject:rect.ID];
+    }
+
+    for (int i = 1; i <4 ; i++) {
+        if (![haveIDArray containsObject:[NSString stringWithFormat:@"%d",i]]) {
+            return i;
+        }
+
+    }
+   
+    return 1;
 }
 
 @end

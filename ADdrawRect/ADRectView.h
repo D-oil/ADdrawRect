@@ -45,6 +45,7 @@ typedef NS_ENUM(NSUInteger, ADViewShape) {
 - (void)deletePath;
 
 
+@property (nonatomic,strong) NSString *ID;
 @property (nonatomic,strong)NSMutableArray <ADRectPoint *> * allPointArray;
 @property (nonatomic,strong)NSMutableArray <ADRectPointButton *> * allPointButtonArray;
 

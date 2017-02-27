@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16C67" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
-    <device id="retina4_7" orientation="portrait">
+    <device id="retina5_5" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
@@ -20,15 +20,15 @@
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UtM-AG-B1W">
-                                <rect key="frame" x="16" y="127" width="343" height="520"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UtM-AG-B1W" customClass="ADRectViewsManager">
+                                <rect key="frame" x="20" y="127" width="374" height="589"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oi8-h3-fIv">
-                                <rect key="frame" x="16" y="20" width="44" height="30"/>
+                                <rect key="frame" x="20" y="20" width="44" height="30"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <state key="normal" title="create">
                                     <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
@@ -38,7 +38,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rr9-FP-fzK">
-                                <rect key="frame" x="316" y="20" width="43" height="30"/>
+                                <rect key="frame" x="351" y="20" width="43" height="30"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <state key="normal" title="delete">
                                     <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
@@ -48,7 +48,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wi5-sO-zwz">
-                                <rect key="frame" x="23" y="54" width="32" height="30"/>
+                                <rect key="frame" x="27" y="54" width="32" height="30"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <state key="normal" title="save">
                                     <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
@@ -58,7 +58,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eAm-T7-uiv">
-                                <rect key="frame" x="322" y="54" width="30" height="30"/>
+                                <rect key="frame" x="357" y="54" width="30" height="30"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <state key="normal" title="edit">
                                     <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
@@ -68,7 +68,7 @@
                                 </connections>
                             </button>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="ONX-mr-8X1">
-                                <rect key="frame" x="68" y="84" width="240" height="29"/>
+                                <rect key="frame" x="72" y="84" width="271" height="29"/>
                                 <segments>
                                     <segment title="triangle"/>
                                     <segment title="Rect"/>
@@ -113,18 +113,18 @@
                             </mask>
                             <mask key="constraints">
                                 <exclude reference="Q03-ua-P9y"/>
-                                <exclude reference="fLx-Ka-olN"/>
-                                <exclude reference="wud-1R-HPP"/>
-                                <exclude reference="CAm-8W-p0K"/>
-                                <exclude reference="coP-TZ-cAr"/>
-                                <exclude reference="eqq-GJ-bHH"/>
-                                <exclude reference="qCv-3J-Xuh"/>
-                                <exclude reference="Bb4-Yj-rCc"/>
-                                <exclude reference="Tdj-Py-qeF"/>
                                 <exclude reference="a2E-9e-luT"/>
                                 <exclude reference="bdx-xf-tv5"/>
                                 <exclude reference="2pL-Jj-FLt"/>
                                 <exclude reference="kdR-1H-0TL"/>
+                                <exclude reference="fLx-Ka-olN"/>
+                                <exclude reference="wud-1R-HPP"/>
+                                <exclude reference="Bb4-Yj-rCc"/>
+                                <exclude reference="Tdj-Py-qeF"/>
+                                <exclude reference="CAm-8W-p0K"/>
+                                <exclude reference="coP-TZ-cAr"/>
+                                <exclude reference="eqq-GJ-bHH"/>
+                                <exclude reference="qCv-3J-Xuh"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=regular">
@@ -137,29 +137,29 @@
                             </mask>
                             <mask key="constraints">
                                 <include reference="Q03-ua-P9y"/>
-                                <include reference="fLx-Ka-olN"/>
-                                <include reference="wud-1R-HPP"/>
-                                <include reference="CAm-8W-p0K"/>
-                                <include reference="coP-TZ-cAr"/>
-                                <include reference="eqq-GJ-bHH"/>
-                                <include reference="qCv-3J-Xuh"/>
-                                <include reference="Bb4-Yj-rCc"/>
-                                <include reference="Tdj-Py-qeF"/>
                                 <include reference="a2E-9e-luT"/>
                                 <include reference="bdx-xf-tv5"/>
                                 <include reference="2pL-Jj-FLt"/>
                                 <include reference="kdR-1H-0TL"/>
+                                <include reference="fLx-Ka-olN"/>
+                                <include reference="wud-1R-HPP"/>
+                                <include reference="Bb4-Yj-rCc"/>
+                                <include reference="Tdj-Py-qeF"/>
+                                <include reference="CAm-8W-p0K"/>
+                                <include reference="coP-TZ-cAr"/>
+                                <include reference="eqq-GJ-bHH"/>
+                                <include reference="qCv-3J-Xuh"/>
                             </mask>
                         </variation>
                     </view>
                     <connections>
-                        <outlet property="drawView" destination="UtM-AG-B1W" id="fs7-83-r0T"/>
+                        <outlet property="rectViewsManager" destination="UtM-AG-B1W" id="PNa-t5-7O0"/>
                         <outlet property="segmentedControl" destination="ONX-mr-8X1" id="QsG-At-YaR"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2252" y="-576"/>
+            <point key="canvasLocation" x="-2252.34375" y="-576.5625"/>
         </scene>
     </scenes>
 </document>

@@ -13,6 +13,6 @@
 
 @property (nonatomic,assign) CGPoint point;
 
-
+@property (nonatomic,assign) BOOL isInnerAngleLess180;
 
 @end

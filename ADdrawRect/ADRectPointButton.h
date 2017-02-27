@@ -7,11 +7,12 @@
 
 #import <UIKit/UIKit.h>
 
+@class ADRectPointButton;
 @protocol ADRectPointButtonDelegate <NSObject>
 
 @required
-- (void)touchMoveButtonWithTag:(NSInteger)tag WithPoint:(CGPoint)point;
-- (void)touchEndButtonWithTag:(NSInteger)tag WithPoint:(CGPoint)point;
+- (void)touchMoveButton:(ADRectPointButton *)rectPointButton WithTag:(NSInteger)tag WithPoint:(CGPoint)point;
+- (void)touchEndButton:(ADRectPointButton *)rectPointButton WithTag:(NSInteger)tag WithPoint:(CGPoint)point;
 @end
 
 @interface ADRectPointButton : UIButton
