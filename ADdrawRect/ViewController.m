@@ -40,8 +40,17 @@
         [self.rectViewsManager deleteRectView:self.rectViewsManager.currentView];
     }
     if ([sender.currentTitle isEqualToString:@"save"]) {
-        NSArray *array = [self.rectViewsManager saveRectView:self.rectViewsManager.currentView];
-        NSLog(@"\npoint array \n%@\n ",array) ;
+        
+        if (self.rectViewsManager.currentView.canSave) {
+            NSLog(@"可以保存!");
+            NSArray *array = [self.rectViewsManager saveRectView:self.rectViewsManager.currentView];
+            NSLog(@"\npoint array \n%@\n ",array) ;
+        } else {
+            NSLog(@"图像不正确，不能保存");
+        
+        }
+        
+        
     }
     if ([sender.currentTitle isEqualToString:@"edit"]) {
         [self.rectViewsManager editRectView:self.rectViewsManager.currentView];

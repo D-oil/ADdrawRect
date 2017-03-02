@@ -6,12 +6,13 @@
 //
 
 #import "ADRectView.h"
-
+#import <math.h>
 
 const static CGFloat ADRectBorderLength = 100;
-const static CGFloat ADRectButtonSize   = 40;
+const static CGFloat ADRectButtonSize   = 50;
 
 @interface ADRectView () <ADRectPointButtonDelegate>
+
 
 
 
@@ -22,7 +23,8 @@ const static CGFloat ADRectButtonSize   = 40;
 @property (nonatomic,assign)CGPoint          rectTopPoint;
 @property (nonatomic,assign)CGPoint          rectBottomPoint;
 
-@property (nonatomic,assign)CGPoint          lastMovePoint;
+
+@property (nonatomic,assign)CGPoint          lastMoveCenterPoint;
 
 @end
 
@@ -74,6 +76,7 @@ const static CGFloat ADRectButtonSize   = 40;
         self.path  = [[UIBezierPath alloc]init];
         [self createAllPointWithFrame:superViewBounds];
         [self setDefaultInfo];
+        self.canSave = YES;
         
         UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureRecognizerAction:)];
         [self addGestureRecognizer:pan];
@@ -91,13 +94,11 @@ const static CGFloat ADRectButtonSize   = 40;
         self.backgroundColor = [UIColor clearColor];
         self.viewShape = ADViewShape_Rect;
         self.path  = [[UIBezierPath alloc]init];
+        self.canSave = YES;
         [self createRectViewWithFrame:superViewBounds pointArray:points];
         [self setDefaultInfo];
         UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureRecognizerAction:)];
         [pan setMinimumNumberOfTouches:2];
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [pan requireGestureRecognizerToFail:pan];
-        });
         [self addGestureRecognizer:pan];
         
     }
@@ -217,6 +218,7 @@ const static CGFloat ADRectButtonSize   = 40;
     UITouch *touch = [touches.allObjects lastObject];
     if ([self isTouchSelectViewWithTouchPoint:[touch locationInView:self]]) {
         [self beginEditPath];
+        
     } else {
 //        if ([_delegate respondsToSelector:@selector(savePathWithRectView:)]) {
 //            [self.delegate savePathWithRectView:self];
@@ -238,21 +240,39 @@ const static CGFloat ADRectButtonSize   = 40;
 #pragma mark - ADRectPointButtonDelegate
 - (void)touchMoveButton:(ADRectPointButton *)rectPointButton WithTag:(NSInteger)tag WithPoint:(CGPoint)point
 {
+    
     NSLog(@"tag = %ld ,Point = %@",tag,NSStringFromCGPoint(point));
     ADRectPoint *pointObj = self.allPointArray[tag];
-    pointObj.point = point;
-    //计算其他三个内角的和计算出正在移动的这个button的内角度数
     
-    [rectPointButton setCenter:point];
+    //1.判断这个点是否在其他点组成的三角形之内，是：则是凹四边形，非，则是正常四边形
+    if ([self computeAllPointIsInOtherTriangle]){
+        NSLog(@"in Triangle");
+        self.fillColor = [UIColor colorWithRed:140/255.0 green:140/255.0  blue:140/255.0  alpha:0.7];
+        self.canSave = NO;
+    } else {
+        NSLog(@"out Triangle");
+        self.fillColor = self.originalFillColor;
+        self.canSave = YES;
+        //2.判断四边形的对边是否相交
+        if ([self computeRectangleOppositeSideIsIntersect]) {
+            NSLog(@"相交");
+            self.fillColor = [UIColor colorWithRed:140/255.0 green:140/255.0  blue:140/255.0  alpha:0.7];
+            self.canSave = NO;
+        } else {
+            NSLog(@"不相交");
+            self.fillColor = self.originalFillColor;
+            self.canSave = YES;
+        }
+    }
+    
+    //计算其他三个内角的和计算出正在移动的这个button的内角度数
     //判断四变形内角的每个角是否有大于180度，大于这会变成凹四边形，这不能移动点了
-    if ([self computeAllpointInnerAngleDeterminePointCanMoveWithCurrentButtontag:rectPointButton.tag]) {
-       
-        
+//    if ([self computeAllpointInnerAngleDeterminePointCanMoveWithCurrentButtontag:rectPointButton.tag]) {}
+        pointObj.point = point;
+        [rectPointButton setCenter:point];
         [self setNeedsDisplay];
         [self updateFrame];
-    } else {
-        
-    }
+
       
 
 
@@ -262,19 +282,14 @@ const static CGFloat ADRectButtonSize   = 40;
 {
     ADRectPoint *pointObj = self.allPointArray[tag];
     pointObj.point = point;
+    
     //判断四变形内角的每个角是否有大于180度，大于这会变成凹四边形，这不能移动点了
-    if ([self computeAllpointInnerAngleDeterminePointCanMoveWithCurrentButtontag:rectPointButton.tag]) {
-        
-        
+//    if ([self computeAllpointInnerAngleDeterminePointCanMoveWithCurrentButtontag:rectPointButton.tag]) {}
+
         [rectPointButton setCenter:point];
         [self updateFrame];
         [self setNeedsDisplay];
-    } else {
-     
-    }
-       
-    
- 
+
 }
 
 #pragma mark - create shape Point
@@ -370,11 +385,12 @@ const static CGFloat ADRectButtonSize   = 40;
     
     [pointAngleArray removeObjectAtIndex:tag];
     double movePointInnerAngel = 2 *M_PI;
+    
     for (NSNumber *point in pointAngleArray) {
        movePointInnerAngel = movePointInnerAngel - [point doubleValue];
     }
     
-    if (movePointInnerAngel >= M_PI) {
+    if (movePointInnerAngel >= M_PI ) {
         return NO;
     }
 
@@ -416,20 +432,123 @@ const static CGFloat ADRectButtonSize   = 40;
     return acos(cosA);
 }
 
+
+//评估点在先的哪一侧
+// 判断点P(x, y)与有向直线P1P2的关系. 小于0表示点在直线左侧，等于0表示点在直线上，大于0表示点在直线右侧
+float EvaluatePointToLine(float x, float y, float x1, float y1, float x2, float y2)
+{
+    float a = y2 - y1;
+    float b = x1 - x2;
+    float c = x2 * y1 - x1 * y2;
+    
+    assert(fabs(a) > 0.00001f || fabs(b) > 0.00001f);
+    
+    return a * x + b * y + c;
+}
+
+// 判断点P(x, y)是否在点P1(x1, y1), P2(x2, y2), P3(x3, y3)构成的三角形内（包括边）
+bool IsPointInTriangle(float x, float y, float x1, float y1, float x2, float y2, float x3, float y3)
+{
+    // 分别计算点P与有向直线P1P2, P2P3, P3P1的关系，如果都在同一侧则可判断点在三角形内
+    // 注意三角形有可能是顺时针(d>0)，也可能是逆时针(d<0)。
+    float d1 = EvaluatePointToLine(x, y, x1, y1, x2, y2);
+    float d2 = EvaluatePointToLine(x, y, x2, y2, x3, y3);
+    if (d1 * d2 < 0)
+        return false;
+    
+    float d3 = EvaluatePointToLine(x, y, x3, y3, x1, y1);
+    if (d2 * d3 < 0)
+        return false;
+    
+    return true;
+}
+
+//判断所有点是否在其他三个点组成的三角形内
+- (BOOL)computeAllPointIsInOtherTriangle{
+    
+    for (int i = 0; i < self.allPointArray.count; i++) {
+        NSMutableArray *allpoints =  [self.allPointArray mutableCopy];
+        ADRectPoint *point = allpoints[i];
+        [allpoints removeObject:allpoints[i]];
+        ADRectPoint *otherPoint1 = allpoints[0];
+        ADRectPoint *otherPoint2 = allpoints[1];
+        ADRectPoint *otherPoint3 = allpoints[2];
+        if (IsPointInTriangle(point.point.x, point.point.y, otherPoint1.point.x, otherPoint1.point.y, otherPoint2.point.x, otherPoint2.point.y,otherPoint3.point.x, otherPoint3.point.y)) {
+            return YES;
+        }
+        
+    }
+    return NO;
+}
+
+double mult(float x1, float y1, float x2, float y2,float x3, float y3)
+{
+    return (x1-x3)*(y2-y3)-(x2-x3)*(y1-y3);
+}
+
+//aa, bb为一条线段两端点 cc, dd为另一条线段的两端点 相交返回true, 不相交返回false
+bool intersect(float x1, float y1, float x2, float y2,float x3, float y3, float x4,float y4)
+{
+    if ( fmax(x1, x2)<fmin(x3, x4) )
+    {
+        return false;
+    }
+    if ( fmax(y1, y2)<fmin(y3, y4) )
+    {
+        return false;
+    }
+    if ( fmax(x3, x4)<fmin(x1, x2) )
+    {
+        return false;
+    }
+    if ( fmax(y3, y4)<fmin(y1, y2) )
+    {
+        return false;
+    }
+    if ( mult(x3, y3, x2, y2, x1, y1) * mult(x2, y2, x4, y4, x1, y1)<0 )
+    {
+        return false;
+    }
+    if ( mult( x1,  y1,  x2,  y2, x3,  y3)*mult(x4, y4, x2, y2, x3, y3)<0 )
+    {
+        return false;
+    }
+    return true;
+}
+//计算矩形对边是否交叉
+- (BOOL)computeRectangleOppositeSideIsIntersect
+{
+    BOOL isIntersect ;
+    ADRectPoint *point0 = self.allPointArray[0];
+    ADRectPoint *point1 = self.allPointArray[1];
+    ADRectPoint *point2 = self.allPointArray[2];
+    ADRectPoint *point3 = self.allPointArray[3];
+    
+    isIntersect = intersect(point0.point.x, point0.point.y, point1.point.x, point1.point.y , point3.point.x, point3.point.y ,point2.point.x, point2.point.y);
+    if (isIntersect) {
+        return YES;
+    }
+    isIntersect = intersect(point3.point.x, point3.point.y, point0.point.x, point0.point.y , point2.point.x, point2.point.y ,point1.point.x, point1.point.y);
+    if (isIntersect) {
+        return YES;
+    }
+    return NO;
+}
+
 - (void)panGestureRecognizerAction:(UIPanGestureRecognizer *)pan
 {
     NSLog(@"%@",NSStringFromCGPoint([pan translationInView:self.superview]));
     CGPoint movePoint = [pan translationInView:self.superview];
     
-    CGFloat moveX = (movePoint.x - self.lastMovePoint.x ) /2.5;
-    CGFloat moveY = (movePoint.y - self.lastMovePoint.y ) /2.5;
+    CGFloat moveX = (movePoint.x - self.lastMoveCenterPoint.x ) /1.5;
+    CGFloat moveY = (movePoint.y - self.lastMoveCenterPoint.y ) /1.5;
     
-    //判断边界
+    //判断四个点是否到达边界了
     UIView *superview = self.superview;
     for (ADRectPoint *point in self.allPointArray) {
         if ((point.point.x <= 0 && moveX >= 0) ||
             (point.point.y <= 0 && moveY >= 0) ||
-            (point.point.x >= superview.frame.size.width && moveX <= 0) ||
+            (point.point.x >= superview.frame.size.width  && moveX <= 0) ||
             (point.point.y >= superview.frame.size.height && moveY <= 0)) {
             
         }
@@ -447,9 +566,9 @@ const static CGFloat ADRectButtonSize   = 40;
         pointButton.center = CGPointMake(pointButton.center.x + moveX, pointButton.center.y + moveY);
     }
     [self setNeedsDisplay];
-    self.lastMovePoint = movePoint;
+    self.lastMoveCenterPoint = movePoint;
     if (pan.state == UIGestureRecognizerStateEnded) {
-        self.lastMovePoint = CGPointZero;
+        self.lastMoveCenterPoint = CGPointZero;
     }
 }
 

@@ -75,6 +75,7 @@
     ADRectView *rect = [[ADRectView alloc]initWithSuperViewBounds:self.bounds shape:shape];
     rect.ID = [NSString stringWithFormat:@"%ld",[self getMinID]];
     rect.fillColor = [self.colorArray objectAtIndex:[self getMinID] -1];
+    rect.originalFillColor = [self.colorArray objectAtIndex:[self getMinID] -1];
     rect.buttonBackgroundImage_defaultStr = [self.buttonIcons objectAtIndex:[self getMinID] -1];
     rect.buttonBackgroundImage_highlightedStr = [self.buttonIcons objectAtIndex:[self getMinID] -1];
     rect.lineWidth   = 2;
@@ -89,6 +90,7 @@
     //为rect分配一个最低id
     rect.ID = [NSString stringWithFormat:@"%ld",[self getMinID]];
     rect.fillColor = [self.colorArray objectAtIndex:[self getMinID] -1];
+    rect.originalFillColor = [self.colorArray objectAtIndex:[self getMinID] -1];
     rect.buttonBackgroundImage_defaultStr = [self.buttonIcons objectAtIndex:[self getMinID] -1];
     rect.buttonBackgroundImage_highlightedStr = [self.buttonIcons objectAtIndex:[self getMinID] -1];
     rect.lineWidth   = 2;

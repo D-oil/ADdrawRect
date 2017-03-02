@@ -49,10 +49,13 @@ typedef NS_ENUM(NSUInteger, ADViewShape) {
 @property (nonatomic,strong)NSMutableArray <ADRectPoint *> * allPointArray;
 @property (nonatomic,strong)NSMutableArray <ADRectPointButton *> * allPointButtonArray;
 
+@property (nonatomic,assign) BOOL canSave;
+
 //properyies
 @property (nonatomic,assign,readonly)CGPoint          rectTopPoint;
 @property (nonatomic,assign,readonly)CGPoint          rectBottomPoint;
 
+@property (nonatomic,strong)UIColor *originalFillColor;
 @property (nonatomic,strong)UIColor  *fillColor;         //default gray
 @property (nonatomic,strong)UIColor  *strokeColor;       //default red
 @property (nonatomic,assign)NSInteger lineWidth;         //default 2
