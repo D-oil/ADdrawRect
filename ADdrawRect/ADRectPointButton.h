@@ -13,6 +13,7 @@
 @required
 - (void)touchMoveButton:(ADRectPointButton *)rectPointButton WithTag:(NSInteger)tag WithPoint:(CGPoint)point;
 - (void)touchEndButton:(ADRectPointButton *)rectPointButton WithTag:(NSInteger)tag WithPoint:(CGPoint)point;
+
 @end
 
 @interface ADRectPointButton : UIButton

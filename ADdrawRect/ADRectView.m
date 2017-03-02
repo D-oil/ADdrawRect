@@ -272,8 +272,10 @@ const static CGFloat ADRectButtonSize   = 50;
         [rectPointButton setCenter:point];
         [self setNeedsDisplay];
         [self updateFrame];
-
-      
+    
+    if ([self.delegate respondsToSelector:@selector(rectPointMoveing:)]) {
+        [self.delegate rectPointMoveing:self];
+    }
 
 
 }
@@ -289,7 +291,10 @@ const static CGFloat ADRectButtonSize   = 50;
         [rectPointButton setCenter:point];
         [self updateFrame];
         [self setNeedsDisplay];
-
+    
+    if ([self.delegate respondsToSelector:@selector(rectPointStop:)]) {
+        [self.delegate rectPointStop:self];
+    }
 }
 
 #pragma mark - create shape Point
@@ -486,7 +491,7 @@ double mult(float x1, float y1, float x2, float y2,float x3, float y3)
     return (x1-x3)*(y2-y3)-(x2-x3)*(y1-y3);
 }
 
-//aa, bb为一条线段两端点 cc, dd为另一条线段的两端点 相交返回true, 不相交返回false
+//aa, bb为一条线段两端点 ；cc, dd为另一条线段的两端点 相交返回true, 不相交返回false
 bool intersect(float x1, float y1, float x2, float y2,float x3, float y3, float x4,float y4)
 {
     if ( fmax(x1, x2)<fmin(x3, x4) )

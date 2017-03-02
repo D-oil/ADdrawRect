@@ -141,6 +141,17 @@
         [self.delegate endEditWithRectView:rect];
     }
 }
+- (void)rectPointMoveing:(id)rect {
+    if ([_delegate respondsToSelector:@selector(rectPointMoving:)]) {
+        [self.delegate rectPointMoving:rect];
+    }
+    
+}
+- (void)rectPointStop:(id)rect {
+    if ([_delegate respondsToSelector:@selector(rectPointMoveStop:)]) {
+        [self.delegate rectPointMoveStop:rect];
+    }
+}
 
 + (ADRectPoint *)createADRectPointWithPoint:(CGPoint)point
 {

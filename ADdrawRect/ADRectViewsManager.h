@@ -14,6 +14,8 @@
 - (void)beginEditWithRectView:(ADRectView *)rect;
 - (void)endEditWithRectView:(ADRectView *)rect;
 
+- (void)rectPointMoving:(ADRectView *)rect;
+- (void)rectPointMoveStop:(ADRectView *)rect;
 @end
 
 @interface ADRectViewsManager : UIView

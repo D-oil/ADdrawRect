@@ -30,6 +30,9 @@ typedef NS_ENUM(NSUInteger, ADViewShape) {
 
 - (void)savePathWithRectView:(id)rect;
 
+- (void)rectPointMoveing:(id)rect;
+- (void)rectPointStop:(id)rect;
+
 @end
 
 @interface ADRectView : UIView

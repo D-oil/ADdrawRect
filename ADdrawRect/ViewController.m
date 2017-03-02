@@ -89,10 +89,12 @@
 
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void)rectPointMoving:(ADRectView *)rect
+{
+    NSLog(@"moving!");
 }
-
-
+- (void)rectPointMoveStop:(ADRectView *)rect
+{
+    NSLog(@"stop!");
+}
 @end
